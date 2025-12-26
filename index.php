@@ -483,7 +483,7 @@ foreach ($ips as $ip) {
         const headers = { 'Content-Type': 'application/json' };
         if (token) headers['Authorization'] = 'Bearer ' + token;
 
-        const res = await fetch('index.php?action=save', {
+        const res = await fetch('?action=save', {
             method: 'POST',
             headers,
             body: JSON.stringify({ ip, vmid, note })
