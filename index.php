@@ -283,28 +283,151 @@ foreach ($ips as $ip) {
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <title>IP Space Manager</title>
     <style>
-        body { font-family: Arial, sans-serif; margin: 18px; }
-        .top { display:flex; justify-content:space-between; align-items:flex-end; gap: 12px; flex-wrap: wrap; }
-        .meta { font-size: 13px; color:#333; }
-        .warn { font-size: 13px; color:#8a1f11; }
-        table { border-collapse: collapse; width: 100%; margin-top: 12px; }
-        th, td { border: 1px solid #ddd; padding: 8px; }
-        th { background: #f6f6f6; text-align: left; }
-        input[type="text"] { width: 100%; box-sizing: border-box; padding: 6px; }
-        .ip { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; }
-        button { padding: 6px 10px; cursor: pointer; }
-        .status { font-size: 12px; margin-top: 8px; min-height: 16px; }
-        .ok { color: #0b6b0b; }
-        .err { color: #8a1f11; }
-        .saving { color: #6a5d00; }
-        .search { width: 320px; max-width: 100%; }
+    :root {
+        --bg: #0f1115;
+        --bg-soft: #161a22;
+        --text: #e6e6e6;
+        --muted: #a0a0a0;
+        --border: #2a2f3a;
+        --accent: #3b82f6;
+        --ok: #22c55e;
+        --err: #ef4444;
+        --warn: #f59e0b;
+        --input-bg: #0b0e14;
+    }
+
+    body.light {
+        --bg: #ffffff;
+        --bg-soft: #f6f6f6;
+        --text: #111111;
+        --muted: #555555;
+        --border: #dddddd;
+        --accent: #2563eb;
+        --ok: #15803d;
+        --err: #b91c1c;
+        --warn: #92400e;
+        --input-bg: #ffffff;
+    }
+
+    body {
+        font-family: Arial, sans-serif;
+        margin: 18px;
+        background: var(--bg);
+        color: var(--text);
+    }
+
+    h2 { margin: 0; }
+
+    .meta { font-size: 13px; color: var(--muted); }
+    .warn { font-size: 13px; color: var(--warn); }
+
+    table {
+        border-collapse: collapse;
+        width: 100%;
+        margin-top: 12px;
+        background: var(--bg-soft);
+    }
+
+    th, td {
+        border: 1px solid var(--border);
+        padding: 8px;
+    }
+
+    th {
+        background: var(--bg-soft);
+        text-align: left;
+        color: var(--muted);
+    }
+
+    input[type="text"] {
+        width: 100%;
+        box-sizing: border-box;
+        padding: 6px;
+        background: var(--input-bg);
+        color: var(--text);
+        border: 1px solid var(--border);
+    }
+
+    input[type="text"]:focus {
+        outline: none;
+        border-color: var(--accent);
+    }
+
+    button {
+        padding: 6px 10px;
+        cursor: pointer;
+        background: var(--bg);
+        color: var(--text);
+        border: 1px solid var(--border);
+    }
+
+    button:hover {
+        border-color: var(--accent);
+    }
+
+    .ip {
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    }
+
+    .status {
+        font-size: 12px;
+        margin-top: 8px;
+        min-height: 16px;
+    }
+
+    .ok { color: var(--ok); }
+    .err { color: var(--err); }
+    .saving { color: var(--warn); }
+
+    .top {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-end;
+        gap: 12px;
+        flex-wrap: wrap;
+    }
+
+    .search {
+        width: 320px;
+        max-width: 100%;
+    }
+
+    .toggle {
+        font-size: 12px;
+        margin-left: 8px;
+        cursor: pointer;
+        color: var(--accent);
+        background: none;
+        border: none;
+    }
     </style>
 </head>
+<script>
+(() => {
+    const saved = localStorage.getItem('theme');
+    if (saved === 'light') document.body.classList.add('light');
+
+    const btn = document.getElementById('themeToggle');
+    btn.addEventListener('click', () => {
+        document.body.classList.toggle('light');
+        localStorage.setItem(
+            'theme',
+            document.body.classList.contains('light') ? 'light' : 'dark'
+        );
+    });
+})();
+</script>
+
 <body>
     <div class="top">
         <div>
             <h2 style="margin:0;">IP Space Manager</h2>
-            <div class="meta">CIDR: <strong><?= htmlspecialchars($CIDR, ENT_QUOTES, 'UTF-8') ?></strong> | Rows: <strong><?= count($rows) ?></strong></div>
+            <div class="meta">
+                CIDR: <strong><?= htmlspecialchars($CIDR, ENT_QUOTES, 'UTF-8') ?></strong>
+                | Rows: <strong><?= count($rows) ?></strong>
+                <button class="toggle" id="themeToggle">Toggle theme</button>
+            </div>
+
             <div class="warn">Auth required for saving: send token via <code>Authorization: Bearer &lt;AT&gt;</code> or add <code>?token=&lt;AT&gt;</code> to the URL.</div>
         </div>
         <div>
